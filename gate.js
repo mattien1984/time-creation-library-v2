@@ -77,7 +77,11 @@
       if(!response.ok)throw failure(response.code||'OPEN',response.error||'The secure preview could not open. Please try again.');
       field.value='';
       const directGate=location.pathname===VAULT.base+'gate.html';
-      location.replace(directGate?VAULT.base+(location.search||'')+(location.hash||''):location.pathname.startsWith(VAULT.base)?location.href:VAULT.base);
+      // Replacing the same hash route is a same-document navigation and does
+      // not request the now-unlocked HTML. Reload to enter deep links too.
+      if(directGate)location.replace(VAULT.base+(location.search||'')+(location.hash||''));
+      else if(location.pathname.startsWith(VAULT.base))location.reload();
+      else location.replace(VAULT.base);
     } catch(error) {
       const code=error.code||'OPEN';
       status.textContent=(error.code?error.message:'The secure preview could not open. Please try again.')+(code==='PASSWORD'?'':` (${code})`);
